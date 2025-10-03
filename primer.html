@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <link rel="stylesheet" href="style.css" />
+ <link rel="stylesheet" href="chatbox.css">
+  <div class="menu-wrapper">
+    <div class="menu-bar">
+    <div class="topbar-buttons">
+      <a href="home.html" class="topbar-btn">Home</a>
+      <a href="about.html" class="topbar-btn">About</a>
+    </div>
+
+    <div class="dropdown">
+      <button class="dropbtn">Tools ▾</button>
+      <div class="dropdown-content">  
+        <a href="dna.html">DNA Translator</a>
+        <a href="rna.html">RNA Translator</a>
+        <a href="dna_to_rna.html">DNA to RNA Converter</a>
+        <a href="rna_to_dna.html">RNA to DNA Converter</a>
+        <a href="reverse_comp.html">Reverse Complement</a>
+        <a href="orf.html">ORF Finder</a>
+        <a href="rna_orf.html">RNA ORF Finder</a>
+        <a href="primer.html">Primer Design</a>
+        <a href="Phylogeny.html">Phylogeny Tree Builder</a>
+      </div>
+    </div>
+
+    <div class="dropdown">
+      <button class="dropbtn">Calculators ▾</button>
+      <div class="dropdown-content">  
+        <a href="shannon.html">Shannon diversity index</a>
+      </div>
+    </div>
+  </div>
+
+    <div class="floating-theme-toggle">
+    <span id="theme-label">🌞</span>
+    <label class="switch">
+      <input type="checkbox" id="themeToggle">
+      <span class="slider round"></span>
+    </label>
+  </div>
+</div>
+<div class="container">
+<h1>
+      <img src="Logo.png" alt="Logo" class="logo">
+  <span class="half1">Primer Design Tool</span>
+  <span class="half2">| Momchi's Genetics Tools</span>
+<hr>
+
+</h1>
+  </head>
+<body>
+  <div class="container">
+    <h1>Primer Design Tool</h1>
+    
+    <label for="sequence-input">Paste DNA Sequence (FASTA or plain):</label>
+    <textarea id="sequence-input" placeholder="e.g. >Sequence 1&#10;ATGCGT..."></textarea>
+
+    <label for="tm-input">Optimal Tm (°C):</label>
+    <input type="number" id="tm-input" value="60" step="0.1" min="30" max="100">
+
+    <label for="tm-diff">Max Tm Difference (°C):</label>
+    <input type="number" id="tm-diff" value="3" step="0.1" min="0" max="10">
+
+    <label for="min-length">Minimum Product Length (nt):</label>
+    <input type="number" id="min-length" value="300" step="10" min="50" max="10000">
+
+    <label for="num-pairs">Number of Primer Pairs (1–20):</label>
+    <input type="number" id="num-pairs" value="5" min="1" max="20">
+
+    <label for="region-start">Optional: Target Region Start (1-based):</label>
+    <input type="number" id="region-start" placeholder="e.g. 100">
+
+    <label for="region-end">Optional: Target Region End (1-based):</label>
+    <input type="number" id="region-end" placeholder="e.g. 800">
+
+    <button id="run-button">Design Primers</button>
+
+    <div id="primer-results"></div>
+
+    <h2 class="section-title">Primer Map</h2>
+    <div class="canvas-container">
+      <canvas id="sequence-map"></canvas>
+      <div class="canvas-tooltip" id="canvas-tooltip"></div>
+    </div>
+  </div>
+ <hr>
+ <p>The Primer Design Tool identifies optimal forward and reverse primers flanking a specified DNA region based on user-defined parameters like melting temperature, GC content, and product length. It provides a detailed results table and a visual map showing primer positions, directions, and the targeted sequence region for easy interpretation. ATENTION: This tool is currently under development; for critical experiments, we strongly recommend verifying the results independently.</p>
+  <div id="chatbox-button">💬</div>
+
+<div id="chatbox">
+  <div class="chatbox-header">
+    <span>Contact Me</span>
+    <button id="close-chat">✖</button>
+  </div>
+  <div class="chatbox-body">
+    <input type="text" id="chat-name" placeholder="Your Name" />
+    <input type="email" id="chat-email" placeholder="Your Email" />
+    <textarea id="chat-message" placeholder="Type your message..."></textarea>
+    <button id="send-message">Send</button>
+  </div>
+</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script src="chatbox.js"></script>
+  <script src="primer.js"></script>
+  <script src="theme-toggle.js"></script>
+ </div>
+</body>
+</html>

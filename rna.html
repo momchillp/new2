@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RNA to Protein Tool</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="chatbox.css">
+</head>
+<body>
+<div class="menu-wrapper">
+    <div class="menu-bar">
+    <div class="topbar-buttons">
+      <a href="home.html" class="topbar-btn">Home</a>
+      <a href="about.html" class="topbar-btn">About</a>
+    </div>
+
+    <div class="dropdown">
+      <button class="dropbtn">Tools ▾</button>
+      <div class="dropdown-content">  
+        <a href="dna.html">DNA Translator</a>
+        <a href="rna.html">RNA Translator</a>
+        <a href="dna_to_rna.html">DNA to RNA Converter</a>
+        <a href="rna_to_dna.html">RNA to DNA Converter</a>
+        <a href="reverse_comp.html">Reverse Complement</a>
+        <a href="orf.html">ORF Finder</a>
+        <a href="rna_orf.html">RNA ORF Finder</a>
+        <a href="primer.html">Primer Design</a>
+        <a href="Phylogeny.html">Phylogeny Tree Builder</a>
+      </div>
+    </div>
+
+    <div class="dropdown">
+      <button class="dropbtn">Calculators ▾</button>
+      <div class="dropdown-content">  
+        <a href="shannon.html">Shannon diversity index</a>
+      </div>
+    </div>
+  </div>
+
+    <div class="floating-theme-toggle">
+    <span id="theme-label">🌞</span>
+    <label class="switch">
+      <input type="checkbox" id="themeToggle">
+      <span class="slider round"></span>
+    </label>
+  </div>
+</div>
+<div class="container">
+
+    <h1>
+      <img src="Logo.png" alt="Logo" class="logo" />
+      <span class="half1">RNA to protein converter</span>
+      <span class="half2">| Momchi's Genetics Tools</span>
+    </h1>
+
+    <p>Convert RNA sequences into protein chains.</p>
+
+    <label for="rna-input">Enter RNA Sequence:</label>
+    <textarea id="rna-input" placeholder="e.g., AUGGCCAUUGUAAUGGGCCGCUGA...or FASTA format"></textarea>
+
+    <button onclick="translateRNA()">Translate RNA to Protein</button>
+
+    <h2>Output Protein Sequence:</h2>
+    <div id="protein-output"></div>
+
+<hr>
+    <p>
+      This tool translates RNA sequences into corresponding polypeptide chains. Each amino acid is represented using the
+      standard one-letter code. Translation begins at the first nucleotide of the input sequence and continues through the entire RNA strand.
+      When a stop codon (UAA, UAG, or UGA) is encountered, it is represented in the output as an underscore (_).
+      The tool supports RNA sequences written in either uppercase (A, U, G, C) or lowercase (a, u, g, c), and can also process sequences in FASTA format.
+    </p>
+  </div>
+  </div>
+  <div id="chatbox-button">💬</div>
+
+<div id="chatbox">
+  <div class="chatbox-header">
+    <span>Contact Me</span>
+    <button id="close-chat">✖</button>
+  </div>
+  <div class="chatbox-body">
+    <input type="text" id="chat-name" placeholder="Your Name" />
+    <input type="email" id="chat-email" placeholder="Your Email" />
+    <textarea id="chat-message" placeholder="Type your message..."></textarea>
+    <button id="send-message">Send</button>
+  </div>
+</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script src="chatbox.js"></script>
+  <script src="rna-script.js"></script>
+  <script src="theme-toggle.js"></script>
+</body>
+</html>

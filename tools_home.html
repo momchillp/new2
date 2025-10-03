@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tools | Momchi's Genetics Tools</title>
+ <link rel="stylesheet" href="style.css" />
+ <link rel="stylesheet" href="chatbox.css">
+ </head>
+<body>
+<div class="menu-wrapper">
+    <div class="menu-bar">
+    <div class="topbar-buttons">
+      <a href="home.html" class="topbar-btn">Home</a>
+      <a href="about.html" class="topbar-btn">About</a>
+    </div>
+
+    <div class="dropdown">
+      <button class="dropbtn">Tools ▾</button>
+      <div class="dropdown-content">  
+        <a href="dna.html">DNA Translator</a>
+        <a href="rna.html">RNA Translator</a>
+        <a href="dna_to_rna.html">DNA to RNA Converter</a>
+        <a href="rna_to_dna.html">RNA to DNA Converter</a>
+        <a href="reverse_comp.html">Reverse Complement</a>
+        <a href="orf.html">ORF Finder</a>
+        <a href="rna_orf.html">RNA ORF Finder</a>
+        <a href="primer.html">Primer Design</a>
+        <a href="Phylogeny.html">Phylogeny Tree Builder</a>
+        <a href="restriction.html">Restriction site Finder</a>
+      </div>
+    </div>
+
+    <div class="dropdown">
+      <button class="dropbtn">Calculators ▾</button>
+      <div class="dropdown-content">  
+        <a href="shannon.html">Shannon diversity index</a>
+      </div>
+    </div>
+  </div>
+
+    <div class="floating-theme-toggle">
+    <span id="theme-label">🌞</span>
+    <label class="switch">
+      <input type="checkbox" id="themeToggle">
+      <span class="slider round"></span>
+    </label>
+  </div>
+</div>
+<div class="container">
+         <h1>
+      <img src="Logo.png" alt="Logo" class="logo">
+      Momchi's Genetics Tools
+    </h1>
+
+<hr>
+ <div class="home-buttons"> 
+   <a href="dna.html" class="home-link-button">DNA Translator</a> 
+   <a href="rna.html" class="home-link-button">RNA Translator</a> 
+   <a href="dna_to_rna.html" class="home-link-button">DNA to RNA Converter</a> 
+   <a href="rna_to_dna.html" class="home-link-button">RNA to DNA Converter</a> 
+   <a href="reverse_comp.html" class="home-link-button">Reverse Complement</a> 
+   <a href="orf.html"class="home-link-button">ORF Finder</a> 
+   <a href="rna_orf.html"class="home-link-button">RNA ORF Finder</a> 
+   <a href="primer.html"class="home-link-button">Primer Design Tool</a>
+   <a href="Phylogeny.html"class="home-link-button">Phylogeny Tree Builder</a>
+   <a href="restriction.html"class="home-link-button">Restriction site Finder</a>
+ </div>
+ </div>
+</div>
+<div id="chatbox-button">💬</div>
+
+<div id="chatbox">
+  <div class="chatbox-header">
+    <span>Contact Me</span>
+    <button id="close-chat">✖</button>
+  </div>
+  <div class="chatbox-body">
+    <input type="text" id="chat-name" placeholder="Your Name" />
+    <input type="email" id="chat-email" placeholder="Your Email" />
+    <textarea id="chat-message" placeholder="Type your message..."></textarea>
+    <button id="send-message">Send</button>
+  </div>
+</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script src="chatbox.js"></script>
+  <script src="theme-toggle.js"></script>
+
+</body>
+</html>

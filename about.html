@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About the Developer</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="chatbox.css">
+</head>
+<body>
+<div class="menu-wrapper">
+    <div class="menu-bar">
+    <div class="topbar-buttons">
+      <a href="home.html" class="topbar-btn">Home</a>
+      <a href="about.html" class="topbar-btn">About</a>
+    </div>
+
+    <div class="dropdown">
+      <button class="dropbtn">Tools ▾</button>
+      <div class="dropdown-content">  
+        <a href="dna.html">DNA Translator</a>
+        <a href="rna.html">RNA Translator</a>
+        <a href="dna_to_rna.html">DNA to RNA Converter</a>
+        <a href="rna_to_dna.html">RNA to DNA Converter</a>
+        <a href="reverse_comp.html">Reverse Complement</a>
+        <a href="orf.html">ORF Finder</a>
+        <a href="rna_orf.html">RNA ORF Finder</a>
+        <a href="primer.html">Primer Design</a>
+        <a href="Phylogeny.html">Phylogeny Tree Builder</a>
+      </div>
+    </div>
+
+    <div class="dropdown">
+      <button class="dropbtn">Calculators ▾</button>
+      <div class="dropdown-content">  
+        <a href="shannon.html">Shannon diversity index</a>
+      </div>
+    </div>
+  </div>
+
+    <div class="floating-theme-toggle">
+    <span id="theme-label">🌞</span>
+    <label class="switch">
+      <input type="checkbox" id="themeToggle">
+      <span class="slider round"></span>
+    </label>
+  </div>
+</div>
+<div class="container">
+    <h1>About</h1>
+<div class="about-section">
+  <img src="Momchi_photo.png" alt="Developer Photo" class="dev-photo" />
+  <div class="about-text">
+    <p>This platform is developed by Momchil Petkov, student in genomics at the University of Bologna.</p>
+    <p>My mission is to create intuitive, accessible tools and calculators that simplify genetic and genomic analysis for students, researchers, and enthusiasts alike. I believe that powerful bioinformatics resources shouldn't require advanced programming skills to use. By designing clean interfaces and providing meaningful outputs, I aim to make complex biological data easier to understand and explore. Ultimately, I want to support learning, discovery, and collaboration within the genetics community.</p>
+    <p>If you have any questions, suggestions, or ideas for collaboration, I’d be happy to hear from you—feel free to reach out using the contact links below. Sharing this website with others helps grow our community and contributes to the continuous improvement of the tools and content available here. Advertisements on the site help cover basic maintenance costs and ensure the platform remains free and accessible. If you’d like to offer additional support, donations of any size are greatly appreciated and go directly toward further development and upkeep of the project:)</p>
+    <p>Thank you for using "Momchi's Genetics Tools"!</p>
+    <div class="quote-container">
+    <img src="quote1.png" alt="Logo" class="logo">
+    <p class="quote">"Science is a way of thinking much more than it is a body of knowledge."<br>-Carl Sagan</p>
+    </div>
+  </div>
+</div>
+
+
+<hr>   
+     <h3>Contacts and donations:</h3>
+    
+     <p><a href="https://www.instagram.com/momchil.ptkv" target="_blank">👉 Instagram</a></p>
+     <p><a href="mailto:darthmomster@gmail.com">📨Email</a></p>  
+     <p><a href="https://revolut.me/momchi6mcw" target="_blank">🤑 Revolut</a></p>
+
+  
+<div id="chatbox-button">💬</div>
+
+<div id="chatbox">
+  <div class="chatbox-header">
+    <span>Contact Me</span>
+    <button id="close-chat">✖</button>
+  </div>
+  <div class="chatbox-body">
+    <input type="text" id="chat-name" placeholder="Your Name" />
+    <input type="email" id="chat-email" placeholder="Your Email" />
+    <textarea id="chat-message" placeholder="Type your message..."></textarea>
+    <button id="send-message">Send</button>
+  </div>
+</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script src="chatbox.js"></script>
+  <script src="theme-toggle.js"></script>
+</body>
+
+</html>

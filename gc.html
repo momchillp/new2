@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GC Content Analyzer</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="chatbox.css">
+<style>
+    #gcResult { margin-top: 20px; font-weight: bold; }
+  canvas { margin-top: 20px; }
+  #heatmapContainer { display: flex; align-items: center; margin-top: 30px; gap: 20px; }
+  #heatmapWrapper { overflow-x: auto; border: 1px solid #ccc; border-radius: 4px; padding: 5px; max-width: 800px; }
+  #gcHeatmapCanvas { height: 50px; display: block; }
+  #legend { display: flex; align-items: center; gap: 8px; }
+  #legendLabels { display: flex; flex-direction: column; justify-content: space-between; height: 150px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="menu-wrapper">
+    <div class="menu-bar">
+    <div class="topbar-buttons">
+      <a href="home.html" class="topbar-btn">Home</a>
+      <a href="about.html" class="topbar-btn">About</a>
+    </div>
+
+    <div class="dropdown">
+      <button class="dropbtn">Tools ▾</button>
+      <div class="dropdown-content">  
+        <a href="dna.html">DNA Translator</a>
+        <a href="rna.html">RNA Translator</a>
+        <a href="dna_to_rna.html">DNA to RNA Converter</a>
+        <a href="rna_to_dna.html">RNA to DNA Converter</a>
+        <a href="reverse_comp.html">Reverse Complement</a>
+        <a href="orf.html">ORF Finder</a>
+        <a href="rna_orf.html">RNA ORF Finder</a>
+        <a href="primer.html">Primer Design</a>
+        <a href="Phylogeny.html">Phylogeny Tree Builder</a>
+        <a href="restriction.html">Restriction site Finder</a>
+      </div>
+    </div>
+
+    <div class="dropdown">
+      <button class="dropbtn">Calculators ▾</button>
+      <div class="dropdown-content">  
+        <a href="shannon.html">Shannon diversity index</a>
+        <a href="gc.html">GC% calculator</a>
+      </div>
+    </div>
+  </div>
+
+    <div class="floating-theme-toggle">
+    <span id="theme-label">🌞</span>
+    <label class="switch">
+      <input type="checkbox" id="themeToggle">
+      <span class="slider round"></span>
+    </label>
+  </div>
+</div>
+<div class="container">
+
+<h1>
+      <img src="Logo.png" alt="Logo" class="logo">
+  <span class="half1">GC% calculator</span>
+  <span class="half2">| Momchi's Genetics Tools</span>
+</h1>
+
+<p>Paste your DNA/RNA sequence below to calculate overall GC% and view local GC% in graphs and heatmaps.</p>
+
+<textarea id="seqInput" placeholder="Enter DNA or RNA sequence here..."></textarea><br>
+<label for="windowSize">Window size: </label>
+<input type="number" id="windowSize" value="50" min="5" max="1000">
+<button id="analyzeBtn">Analyze</button>
+
+<div id="gcResult"></div>
+<canvas id="gcChart"></canvas>
+
+<h2>GC% Heatmap Representation</h2>
+<div id="heatmapContainer">
+  <div id="heatmapWrapper">
+    <canvas id="gcHeatmapCanvas"></canvas>
+  </div>
+  <div id="legend">
+    <canvas id="legendCanvas" width="20" height="150"></canvas>
+    <div id="legendLabels">
+      <span>100%</span>
+      <span>50%</span>
+      <span>0%</span>
+    </div>
+  </div>
+</div>
+
+
+<canvas id="overviewCanvas" width="600" height="20" style="margin-top:5px; border:1px solid #666; cursor:pointer;"></canvas>
+<hr>
+<p>This tool analyzes DNA or RNA sequences to calculate the guanine–cytosine (GC) content. Results are presented as both a precise percentage value and two visual representations: a line graph showing GC% variation across the sequence, and a color-coded heatmap highlighting local GC-rich and GC-poor regions. </p>
+
+<script>
+function cleanSequence(seq) {
+  return seq.toUpperCase().replace(/[^ACGTU]/g, "");
+}
+
+function calcGC(seq) {
+  let gc = (seq.match(/[GC]/g) || []).length;
+  return (gc / seq.length * 100).toFixed(2);
+}
+
+function calcSlidingGC(seq, windowSize) {
+  let values = [];
+  for (let i = 0; i <= seq.length - windowSize; i++) {
+    let windowSeq = seq.slice(i, i + windowSize);
+    let gc = (windowSeq.match(/[GC]/g) || []).length;
+    values.push((gc / windowSize * 100).toFixed(2));
+  }
+  return values;
+}
+
+function gcToColor(gc) {
+  gc = parseFloat(gc);
+  if (gc < 50) {
+    let ratio = gc / 50;
+    let r = 0, g = Math.round(255 * ratio), b = 255 - Math.round(255 * ratio);
+    return `rgb(${r},${g},${b})`;
+  } else {
+    let ratio = (gc - 50) / 50;
+    let r = Math.round(255 * ratio), g = 255 - Math.round(255 * ratio), b = 0;
+    return `rgb(${r},${g},${b})`;
+  }
+}
+
+function drawHeatmap(gcValues, zoom = 1, offset = 0) {
+  let canvas = document.getElementById("gcHeatmapCanvas");
+  let ctx = canvas.getContext("2d");
+
+  let width = gcValues.length * zoom;
+  canvas.width = width;
+  canvas.height = 50;
+
+  let barWidth = width / gcValues.length;
+  gcValues.forEach((gc, i) => {
+    ctx.fillStyle = gcToColor(gc);
+    ctx.fillRect(i * barWidth, 0, barWidth, canvas.height);
+  });
+
+  document.getElementById("heatmapWrapper").scrollLeft = offset;
+  drawOverview(gcValues, zoom, offset);
+}
+
+function drawLegend() {
+  let canvas = document.getElementById("legendCanvas");
+  let ctx = canvas.getContext("2d");
+  let gradient = ctx.createLinearGradient(0, 0, 0, 150);
+  gradient.addColorStop(0, "red");
+  gradient.addColorStop(0.5, "green");
+  gradient.addColorStop(1, "blue");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+// --- NEW OVERVIEW ---
+function drawOverview(gcValues, zoom, offset) {
+  let canvas = document.getElementById("overviewCanvas");
+  let ctx = canvas.getContext("2d");
+  let width = canvas.width, height = canvas.height;
+
+  ctx.clearRect(0, 0, width, height);
+
+  // Draw entire GC map compressed to overview width
+  gcValues.forEach((gc, i) => {
+    let x = i / gcValues.length * width;
+    ctx.fillStyle = gcToColor(gc);
+    ctx.fillRect(x, 0, width / gcValues.length, height);
+  });
+
+  // Draw visible window box
+  let visibleBp = width * (document.getElementById("gcHeatmapCanvas").clientWidth / (gcValues.length * zoom));
+  let startRatio = offset / (gcValues.length * zoom);
+  let startX = startRatio * width;
+
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(startX, 0, visibleBp, height);
+}
+
+// Globals
+let zoomFactor = 1;
+let scrollOffset = 0;
+let currentGCData = [];
+
+// Input handler
+document.getElementById("analyzeBtn").addEventListener("click", () => {
+  let seq = cleanSequence(document.getElementById("seqInput").value);
+  if (!seq.length) {
+    alert("Please enter a valid DNA or RNA sequence!");
+    return;
+  }
+  let windowSize = parseInt(document.getElementById("windowSize").value);
+  if (windowSize > seq.length) {
+    alert("Window size must be smaller than sequence length!");
+    return;
+  }
+
+  let gcPercent = calcGC(seq);
+  document.getElementById("gcResult").textContent = `Overall GC%: ${gcPercent}%`;
+
+  currentGCData = calcSlidingGC(seq, windowSize);
+
+  // Chart.js plot
+  let ctx = document.getElementById("gcChart").getContext("2d");
+  if (window.gcChartInstance) window.gcChartInstance.destroy();
+  window.gcChartInstance = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: currentGCData.map((_, i) => i + 1),
+      datasets: [{
+        label: `GC% (window size = ${windowSize})`,
+        data: currentGCData,
+        borderColor: "#3aa95f",
+        fill: false,
+        tension: 0.1
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: { y: { min: 0, max: 100 } }
+    }
+  });
+
+  zoomFactor = 1;
+  scrollOffset = 0;
+
+  drawHeatmap(currentGCData, zoomFactor, scrollOffset);
+  drawLegend();
+});
+
+// Zoom with mouse wheel (centered)
+document.getElementById("gcHeatmapCanvas").addEventListener("wheel", (e) => {
+  if (!currentGCData.length) return;
+  e.preventDefault();
+
+  let wrapper = document.getElementById("heatmapWrapper");
+  let rect = wrapper.getBoundingClientRect();
+  let pointerX = e.clientX - rect.left + wrapper.scrollLeft;
+
+  let zoomCenterRatio = pointerX / (currentGCData.length * zoomFactor);
+
+  if (e.deltaY < 0) zoomFactor = Math.min(20, zoomFactor + 0.5);
+  else zoomFactor = Math.max(1, zoomFactor - 0.5);
+
+  let newOffset = zoomCenterRatio * (currentGCData.length * zoomFactor) - pointerX;
+  newOffset = Math.max(0, newOffset);
+
+  drawHeatmap(currentGCData, zoomFactor, newOffset);
+});
+
+// Drag overview window to scroll
+let isDragging = false;
+document.getElementById("overviewCanvas").addEventListener("mousedown", (e) => {
+  if (!currentGCData.length) return;
+  isDragging = true;
+  moveTo(e);
+});
+document.addEventListener("mouseup", () => { isDragging = false; });
+document.addEventListener("mousemove", (e) => { if (isDragging) moveTo(e); });
+
+function moveTo(e) {
+  let canvas = document.getElementById("overviewCanvas");
+  let rect = canvas.getBoundingClientRect();
+  let x = e.clientX - rect.left;
+  let ratio = x / canvas.width;
+  scrollOffset = ratio * (currentGCData.length * zoomFactor) - (document.getElementById("heatmapWrapper").clientWidth / 2);
+  scrollOffset = Math.max(0, scrollOffset);
+  drawHeatmap(currentGCData, zoomFactor, scrollOffset);
+}
+</script>
+</div>
+  <div id="chatbox-button">💬</div>
+
+<div id="chatbox">
+  <div class="chatbox-header">
+    <span>Contact Me</span>
+    <button id="close-chat">✖</button>
+  </div>
+  <div class="chatbox-body">
+    <input type="text" id="chat-name" placeholder="Your Name" />
+    <input type="email" id="chat-email" placeholder="Your Email" />
+    <textarea id="chat-message" placeholder="Type your message..."></textarea>
+    <button id="send-message">Send</button>
+  </div>
+</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script src="chatbox.js"></script>
+
+  <script src="theme-toggle.js"></script>
+
+
+
+</body>
+</html>

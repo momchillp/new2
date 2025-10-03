@@ -1,0 +1,73 @@
+/* Container holding all species input entries */
+#species-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+/* Each species entry block */
+.species-entry {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background-color: var(--panel-bg, #f9f9f9);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease;
+}
+
+/* Light/Dark theme support */
+body.dark .species-entry {
+  background-color: #1f1f1f;
+  border: 1px solid #333;
+}
+
+/* Species name input */
+.species-name {
+  font-size: 1rem;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  background-color: var(--input-bg, #fff);
+  color: inherit;
+  transition: border 0.3s ease;
+}
+
+body.dark .species-name {
+  background-color: #2b2b2b;
+  border-color: #444;
+  color: #eee;
+}
+
+/* Species sequence textarea */
+.species-seq {
+  font-family: monospace;
+  font-size: 0.95rem;
+  padding: 0.5rem;
+  min-height: 6rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  resize: vertical;
+  background-color: var(--input-bg, #fff);
+  color: inherit;
+  transition: border 0.3s ease;
+}
+
+body.dark .species-seq {
+  background-color: #2b2b2b;
+  border-color: #444;
+  color: #eee;
+}
+
+/* Placeholder styling */
+.species-name::placeholder,
+.species-seq::placeholder {
+  color: #999;
+}
+
+body.dark .species-name::placeholder,
+body.dark .species-seq::placeholder {
+  color: #777;
+}

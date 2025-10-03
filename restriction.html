@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home | Restriction site Finder</title>
+ <link rel="stylesheet" href="style.css" />
+ <link rel="stylesheet" href="chatbox.css">
+
+<style>
+.red { background-color: red; color: white; font-weight: bold; }
+  a.pos-link { cursor: pointer; color: #3aa95f; text-decoration: underline; }
+</style>
+
+</head>
+
+<body>
+<div class="menu-wrapper">
+    <div class="menu-bar">
+    <div class="topbar-buttons">
+      <a href="home.html" class="topbar-btn">Home</a>
+      <a href="about.html" class="topbar-btn">About</a>
+    </div>
+
+    <div class="dropdown">
+      <button class="dropbtn">Tools ▾</button>
+      <div class="dropdown-content">  
+        <a href="dna.html">DNA Translator</a>
+        <a href="rna.html">RNA Translator</a>
+        <a href="dna_to_rna.html">DNA to RNA Converter</a>
+        <a href="rna_to_dna.html">RNA to DNA Converter</a>
+        <a href="reverse_comp.html">Reverse Complement</a>
+        <a href="orf.html">ORF Finder</a>
+        <a href="rna_orf.html">RNA ORF Finder</a>
+        <a href="primer.html">Primer Design</a>
+        <a href="Phylogeny.html">Phylogeny Tree Builder</a>
+        <a href="restriction.html">Restriction site Finder</a>
+      </div>
+    </div>
+
+    <div class="dropdown">
+      <button class="dropbtn">Calculators ▾</button>
+      <div class="dropdown-content">  
+        <a href="shannon.html">Shannon diversity index</a>
+      </div>
+    </div>
+  </div>
+
+    <div class="floating-theme-toggle">
+    <span id="theme-label">🌞</span>
+    <label class="switch">
+      <input type="checkbox" id="themeToggle">
+      <span class="slider round"></span>
+    </label>
+  </div>
+</div>
+<div class="container">
+
+<h1>
+    <img src="Logo.png" alt="Logo" class="logo" />
+    <span class="half1">Restriction site Finder</span>
+    <span class="half2">| Momchi's Genetics Tools</span>
+    <hr />
+  </h1>
+
+<p>Enter your DNA sequence below. Click a position to highlight the site in red.</p>
+
+<textarea id="dnaInput" placeholder="Enter DNA sequence here..."></textarea><br>
+<button id="findBtn">Find Restriction Sites</button>
+
+<div id="results"></div>
+<div id="sequenceDisplay"></div>
+
+<script>
+const enzymeDB = {
+  "AarI": "CACCTGC",
+  "AasI": "GACNNNNNGTC",
+  "AatII": "GACGTC",
+  "Acc16I": "TGCGCA",
+  "Acc65I": "GGTACC",
+  "AccB1I": "GGYRCC",
+  "AccB7I": "CCANNNNNTGG",
+  "AccI": "GTMKAC",
+  "AccII": "CGCG",
+  "AccIII": "TCCGGA",
+  "AciI": "CCGC",
+  "AcuI": "CTGAAG",
+  "AflII": "CTTAAG",
+  "AgeI": "ACCGGT",
+  "AluI": "AGCT",
+  "ApaI": "GGGCCC",
+  "AscI": "GGCGCGCC",
+  "BamHI": "GGATCC",
+  "BbsI": "GAAGAC",
+  "BsoBI": "CYCGRG",
+  "Bsp13I": "TCCGGA",
+  "Bsp19I": "TCCGGA",
+  "Bsp120I": "GGGCCC",
+  "Bsp1286I": "GTGCAC",
+  "Bsp1407I": "TCCGGA",
+  "Bsp143I": "CCNGG",
+  "Bsp1720I": "CCNNGG",
+  "BspCNI": "CCSGG",
+  "BspDI": "ATCGAT",
+  "BspEI": "TCCGGA",
+  "BspHI": "TCATGA",
+  "BspLI": "CTCGAG",
+  "BspMI": "ACCTGC",
+  "BspPI": "RGGWCC",
+  "BspQI": "GCTCTTC",
+  "BspT104I": "CCNGG",
+  "BspT107I": "CCNGG",
+  "BspTNI": "GCATC",
+  "BspXI": "CCANNNNNNTGG",
+  "BstEII": "GGTNACC",
+  "BstF5I": "GGATGNN",
+  "BstNI": "CCWGG",
+  "BstXI": "CCANNNNNNTGG",
+  "Bsa29I": "GGTNACC",
+  "BsaAI": "GGTCTC",
+  "BsaBI": "GATNNNNATC",
+  "BsaHI": "GRCGYC",
+  "BsaI": "GGTCTC",
+  "BsaJI": "CCNNGG",
+  "BsaMI": "ACCTGC",
+  "BsaSI": "GGTCTC",
+  "BsaWI": "WCCGGW",
+  "BsgI": "GTGCAG(N)NN",
+  "BsmAI": "GTCTC",
+  "BsmBI": "CGTCTC",
+  "BsmBII": "CGTCTC",
+  "BsmI": "GAATGC",
+  "BsrBI": "CCGCTC",
+  "BsrDI": "GCAATG",
+  "BsrFI": "GCCNNNNNGGC",
+  "BsrGI": "TGTACA",
+  "BsrI": "ACTGG",
+  "BsrSI": "ACTGGG",
+  "BssAI": "CAYNNNNRTG",
+  "BssECI": "CAYNNNNRTG",
+  "BssHII": "GCGCGC",
+  "BssKI": "CCNNGG",
+  "BssNAI": "GATNNNNATC",
+  "BssSI": "CACGAG",
+  "BssT1I": "GGCCNNNNNGGCC",
+  "BtgZI": "GCGATG",
+  "CviJI": "RGCGY",
+  "DraIII": "CACNNNGTG",
+  "DdeI": "CTNAG",
+  "DpnI": "GATC",
+  "EarI": "CTCTTC",
+  "Eam1104I": "GACNNNNNGTC",
+  "EcoRI": "GAATTC",
+  "EcoRII": "CCWGG",
+  "EcoRV": "GATATC",
+  "Esp3I": "CGTCTC",
+  "FauI": "CCCGC(N)NN",
+  "FauNDI": "CCCGC",
+  "FatI": "CATG",
+  "FokI": "GGATG",
+  "Fnu4HI": "GCNGC",
+  "GsuI": "CTGGAG",
+  "HaeIII": "GGCC",
+  "HhaI": "GCGC",
+  "HinP1I": "GCGC",
+  "HindIII": "AAGCTT",
+  "HpaII": "CCGG",
+  "Hpy188I": "TCNNGA",
+  "Hpy99I": "CGWCG",
+  "HinfI": "GANTC",
+  "HpaI": "GTTAAC",
+  "HgaI": "GACGC",
+  "KasI": "GGCGCC",
+  "MbiI": "GAAGA",
+  "MboI": "GATC",
+  "MfeI": "CAATTG",
+  "MluI": "ACGCGT",
+  "MlyI": "GAGTC(N)5",
+  "MmeI": "TCCRAC(N)20",
+  "MnlI": "CCTC(N)7",
+  "Mph1103I": "CTGGAG",
+  "NcoI": "CCATGG",
+  "NdeI": "CATATG",
+  "NgoMIV": "GCCGGC",
+  "NheI": "GCTAGC",
+  "NotI": "GCGGCCGC",
+  "NsiI": "ATGCAT",
+  "PacI": "TTAATTAA",
+  "PagI": "TCATGA",
+  "PaeI": "GACGTC",
+  "PleI": "RGGWCC",
+  "PspEI": "TCCGGA",
+  "PspOMI": "GGGCCC",
+  "PspPI": "RGGWCC",
+  "PsiI": "TTATAA",
+  "PstI": "CTGCAG",
+  "PvuII": "CAGCTG",
+  "RsaI": "GTAC",
+  "SfaNI": "GCATC",
+  "SacI": "GAGCTC",
+  "SacII": "CCGCGG",
+  "SalI": "GTCGAC",
+  "SbfI": "CCTGCAGG",
+  "SgrAI": "CRCCGGYG",
+  "SgrBI": "CACNNNGTG",
+  "SfiI": "GGCCNNNNNGGCC",
+  "SnaBI": "TACGTA",
+  "Sse9I": "GGCGCC",
+  "SseBI": "CCGCGG",
+  "SpeI": "ACTAGT",
+  "SphI": "GCATGC",
+  "SspI": "AATATT",
+  "StyD4I": "CCWWGG",
+  "StuI": "AGGCCT",
+  "TaqI": "TCGA",
+  "TfiI": "GANTC",
+  "Tsp509I": "AATT",
+  "XbaI": "TCTAGA",
+  "XhoI": "CTCGAG",
+  "XmaI": "CCCGGG",
+  "ZraI": "GACGTC"
+}
+
+
+const ambiguityMap = {
+  A:"A", C:"C", G:"G", T:"T",
+  R:"AG", Y:"CT", S:"CG", W:"AT",
+  K:"GT", M:"AC", B:"CGT", D:"AGT",
+  H:"ACT", V:"ACG", N:"ACGT"
+};
+
+// Convert recognition site to regex handling IUPAC codes
+function makeRegex(seq) {
+  return seq.toUpperCase().split("").map(ch => {
+    return ambiguityMap[ch] ? `[${ambiguityMap[ch]}]` : ch;
+  }).join("");
+}
+
+// Break sequence into lines
+function formatDNA(seq, lineLength=80){
+  let lines = [];
+  for(let i=0; i<seq.length; i+=lineLength){
+    lines.push(seq.slice(i, i+lineLength));
+  }
+  return lines.join("\n");
+}
+
+// ================= FIND RESTRICTION SITES =================
+document.getElementById("findBtn").addEventListener("click", () => {
+  const inputDNA = document.getElementById("dnaInput").value.toUpperCase().replace(/[^ACGTRYSWKMBDHVN]/g,"");
+  if(!inputDNA) { alert("Enter DNA sequence!"); return; }
+
+  const resultsDiv = document.getElementById("results");
+  const sequenceDiv = document.getElementById("sequenceDisplay");
+  sequenceDiv.textContent = "";
+
+  let nonCutting = [];
+  let table = `<table><tr><th>Enzyme</th><th>Site</th><th>Positions</th></tr>`;
+  let foundAny = false;
+
+  for(const enzyme in enzymeDB){
+    const site = enzymeDB[enzyme];
+    const regex = new RegExp(makeRegex(site), "g");
+    let match;
+    let positions = [];
+
+    while(match = regex.exec(inputDNA)){
+      positions.push(match.index + 1);
+    }
+
+    if(positions.length>0){
+      foundAny = true;
+      table += `<tr><td>${enzyme}</td><td>${site}</td><td>${positions.map(p=>`<a href="#" class="pos-link" data-pos="${p}" data-len="${site.length}">${p}</a>`).join(", ")}</td></tr>`;
+    } else {
+      nonCutting.push(enzyme);
+    }
+  }
+
+  table += "</table>";
+  resultsDiv.innerHTML = `<p><b>Non-cutting enzymes:</b> ${nonCutting.join(", ")}</p>` + (foundAny ? table : "<p>No restriction sites found.</p>");
+
+  // Display DNA after table with line breaks
+  sequenceDiv.textContent = formatDNA(inputDNA);
+
+  // Attach click events for highlighting
+  document.querySelectorAll(".pos-link").forEach(link => {
+    link.addEventListener("click", e => {
+      e.preventDefault();
+      const pos = parseInt(link.dataset.pos);
+      const len = parseInt(link.dataset.len);
+      const before = inputDNA.slice(0, pos-1);
+      const matchSeq = inputDNA.slice(pos-1, pos-1+len);
+      const after = inputDNA.slice(pos-1+len);
+      sequenceDiv.innerHTML = formatDNA(before) + `<span class="red">${matchSeq}</span>` + formatDNA(after).replace(/\n/g,"<br>");
+      sequenceDiv.scrollIntoView({behavior:"smooth", block:"center"});
+    });
+  });
+});
+</script>
+<div id="chatbox-button">💬</div>
+
+<div id="chatbox">
+  <div class="chatbox-header">
+    <span>Contact Me</span>
+    <button id="close-chat">✖</button>
+  </div>
+  <div class="chatbox-body">
+    <input type="text" id="chat-name" placeholder="Your Name" />
+    <input type="email" id="chat-email" placeholder="Your Email" />
+    <textarea id="chat-message" placeholder="Type your message..."></textarea>
+    <button id="send-message">Send</button>
+  </div>
+</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script src="chatbox.js"></script>
+
+  <script src="theme-toggle.js"></script>
+  <p> This tool identifies restriction sites within a given DNA sequence. Upon analysis, it provides a list of non-cutting restriction enzymes, as well as a table detailing the detected restriction sites, the corresponding enzymes, and their precise positions within the input sequence. ATTENTION: This page is currently under development. The restriction enzyme database contains approximately 200 enzymes. For comprehensive analysis, we recommend independently verifying the results.</p>
+  <p> NOTE: R=A/G, Y=C/T, S=C/G, W=A/T, K=G/T, M=A/C, B=C/G/T, D=A/G/T, H=A/C/T, V=A/C/G, N=A/C/G/T</p>
+ </div>
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <link rel="stylesheet" href="style.css" />
+ <link rel="stylesheet" href="chatbox.css">
+  <div class="menu-wrapper">
+    <div class="menu-bar">
+    <div class="topbar-buttons">
+      <a href="home.html" class="topbar-btn">Home</a>
+      <a href="about.html" class="topbar-btn">About</a>
+    </div>
+
+    <div class="dropdown">
+      <button class="dropbtn">Tools ▾</button>
+      <div class="dropdown-content">  
+        <a href="dna.html">DNA Translator</a>
+        <a href="rna.html">RNA Translator</a>
+        <a href="dna_to_rna.html">DNA to RNA Converter</a>
+        <a href="rna_to_dna.html">RNA to DNA Converter</a>
+        <a href="reverse_comp.html">Reverse Complement</a>
+        <a href="orf.html">ORF Finder</a>
+        <a href="rna_orf.html">RNA ORF Finder</a>
+        <a href="primer.html">Primer Design</a>
+        <a href="Phylogeny.html">Phylogeny Tree Builder</a>
+      </div>
+    </div>
+
+    <div class="dropdown">
+      <button class="dropbtn">Calculators ▾</button>
+      <div class="dropdown-content">  
+        <a href="shannon.html">Shannon diversity index</a>
+      </div>
+    </div>
+  </div>
+
+    <div class="floating-theme-toggle">
+    <span id="theme-label">🌞</span>
+    <label class="switch">
+      <input type="checkbox" id="themeToggle">
+      <span class="slider round"></span>
+    </label>
+  </div>
+</div>
+<div class="container">
+    <h1>
+      <img src="Logo.png" alt="Logo" class="logo">
+  <span class="half1">RNA ORF Finder Tool</span>
+  <span class="half2">| Momchi's Genetics Tools</span>
+<hr>
+</h1>
+  </head>
+<body>
+<div class="container">
+  <h1> RNA ORF Finder Tool</h1>
+  <label for="orf-input">Enter RNA Sequence (FASTA or plain):</label>
+  <textarea id="orf-input" placeholder=">Example\nAUGGCGUAA..."></textarea>
+
+  <label for="min-length">Minimum ORF Length (nt):</label>
+  <input type="number" id="min-length" value="150" min="3" step="3" />
+
+  <label for="output-type">Output Format:</label>
+  <select id="output-type">
+    <option value="protein">Protein</option>
+    <option value="fasta">RNA (FASTA)</option>
+  </select>
+
+  <button onclick="findORFs()">Find ORFs</button>
+
+  <h2>Open Reading Frames:</h2>
+  <table id="orf-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Length (nt)</th>
+        <th>Length (aa)</th>
+        <th>Strand</th>
+        <th> View Sequence</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+   <h2 class="section-title">Sequence Map</h2>
+
+<div class="canvas-container">
+  <canvas id="sequence-map"></canvas>
+</div>
+
+<div id="canvas-tooltip" class="canvas-tooltip"></div>
+
+<script>
+const colors = {
+  '+1': '#4caf50', '+2': '#81c784', '+3': '#a5d6a7',
+  '−1': '#ef5350', '−2': '#e57373', '−3': '#ffcdd2'
+};
+
+function parseFasta(input) {
+  return input.replace(/^>.*\n?/gm, '').replace(/[^AUCGaucg]/g, '').toUpperCase();
+}
+
+function reverseComplement(seq) {
+  const comp = { A: 'U', U: 'A', C: 'G', G: 'C' };
+  return seq.split('').reverse().map(n => comp[n] || 'N').join('');
+}
+
+function translate(dna) {
+  const codonTable = { 'AUA': 'I', 'AUC': 'I', 'AUU': 'I', 'AUG': 'M',
+    'ACA': 'T', 'ACC': 'T', 'ACG': 'T', 'ACU': 'T',
+    'AAC': 'N', 'AAU': 'N', 'AAA': 'K', 'AAG': 'K',
+    'AGC': 'S', 'AGU': 'S', 'AGA': 'R', 'AGG': 'R',
+    'CUA': 'L', 'CUC': 'L', 'CUG': 'L', 'CUU': 'L',
+    'CCA': 'P', 'CCC': 'P', 'CCG': 'P', 'CCU': 'P',
+    'CAC': 'H', 'CAU': 'H', 'CAA': 'Q', 'CAG': 'Q',
+    'CGA': 'R', 'CGC': 'R', 'CGG': 'R', 'CGU': 'R',
+    'GUA': 'V', 'GUC': 'V', 'GUG': 'V', 'GUU': 'V',
+    'GCA': 'A', 'GCC': 'A', 'GCG': 'A', 'GCU': 'A',
+    'GAC': 'D', 'GAU': 'D', 'GAA': 'E', 'GAG': 'E',
+    'GGA': 'G', 'GGC': 'G', 'GGG': 'G', 'GGU': 'G',
+    'UCA': 'S', 'UCC': 'S', 'UCG': 'S', 'UCU': 'S',
+    'UUC': 'F', 'UUU': 'F', 'UUA': 'L', 'UUG': 'L',
+    'UAC': 'Y', 'UAU': 'Y', 'UAA': '_', 'UAG': '_',
+    'UGC': 'C', 'UGU': 'C', 'UGA': '_', 'UGG': 'W', };
+  let protein = '';
+  for (let i = 0; i <= dna.length - 3; i += 3) {
+    const codon = dna.slice(i, i + 3);
+    protein += codonTable[codon] || '?';
+  }
+  return protein;
+}
+
+function findORFsInStrand(seq, strandLabel, minLength) {
+  const orfs = [], startCodon = 'AUG', stops = ['UAA','UAG','UGA'];
+  for (let frame = 0; frame < 3; frame++) {
+    for (let i = frame; i < seq.length - 2; i += 3) {
+      if (seq.slice(i, i+3) === startCodon) {
+        for (let j = i+3; j < seq.length - 2; j += 3) {
+          if (stops.includes(seq.slice(j, j+3))) {
+            const orfSeq = seq.slice(i, j+3);
+            if (orfSeq.length >= minLength) {
+              orfs.push({
+                start: i + 1,
+                end: j + 3,
+                length: j + 3 - i,
+                strand: strandLabel,
+                frame: ((i % 3) + 1),
+                sequence: orfSeq
+              });
+            }
+            break;
+          }
+        }
+      }
+    }
+  }
+  return orfs;
+}
+
+function highlightCodons(seq) {
+  const codons = seq.match(/.{1,3}/g) || [];
+  return codons.map(c =>
+    c === 'AUG' ? `<span class='colored-start'>${c}</span>` :
+    ['UAA','UAG','UGA'].includes(c) ? `<span class='colored-stop'>${c}</span>` : c
+  ).join('');
+}
+
+function copyToClipboard(id) {
+  const el = document.getElementById(id);
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+  document.execCommand("copy");
+  sel.removeAllRanges();
+  alert('Copied to clipboard!');
+}
+
+function toggleORF(index) {
+  const out = document.getElementById(`orf-output-${index}`);
+  const btn = document.getElementById(`btn-${index}`);
+  const orf = window.orfs[index];
+  const fmt = document.getElementById('output-type').value;
+  if (out.innerHTML.trim()) {
+    out.innerHTML = ''; btn.textContent = 'Show';
+  } else {
+    const content = fmt === 'protein'
+      ?`<pre>${wrapSequence(translate(orf.sequence).replace(/_/g, 'stop'), 60)}</pre>`
+     : `<pre>>ORF_${index+1}_${orf.strand}${orf.frame}_${orf.start}-${orf.end}\n${wrapSequence(orf.sequence, 60)}</pre>`;
+    out.innerHTML = `<div id="orf-seq-${index}">${content}</div><button class="copy-btn" onclick="copyToClipboard('orf-seq-${index}')">Copy</button>`;
+    btn.textContent = 'Hide';
+  }
+}
+
+function drawSequenceMap(seqLen, orfs) {
+  const canvas = document.getElementById('sequence-map');
+  const ctx = canvas.getContext('2d');
+  const tooltip = document.getElementById('canvas-tooltip');
+
+  // HiDPI scaling for sharp text
+  const dpr = window.devicePixelRatio || 1;
+  const displayWidth = canvas.offsetWidth;
+  const displayHeight = canvas.offsetHeight;
+  canvas.width = displayWidth * dpr;
+  canvas.height = displayHeight * dpr;
+  ctx.scale(dpr, dpr);
+
+  ctx.clearRect(0, 0, displayWidth, displayHeight);
+
+  const scale = displayWidth / seqLen;
+  const trackOffset = { '+': 40, '−': 100 };
+  const barHeight = 14;
+
+  canvas.orfRects = [];
+
+  // Axis lines
+  ctx.strokeStyle = '#ccc';
+  ctx.beginPath();
+  ctx.moveTo(0, trackOffset['+'] - 10);
+  ctx.lineTo(displayWidth, trackOffset['+'] - 10);
+  ctx.moveTo(0, trackOffset['−'] - 10);
+  ctx.lineTo(displayWidth, trackOffset['−'] - 10);
+  ctx.stroke();
+
+  // Set consistent font styling for labels
+  ctx.fillStyle = '#333';
+  ctx.font = '14px "Segoe UI", Arial, sans-serif';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left';
+  ctx.fillText('+ strand', 8, trackOffset['+'] - 18);
+  ctx.fillText('− strand', 8, trackOffset['−'] - 18);
+
+  // Draw ORFs
+  orfs.forEach((orf, idx) => {
+    const x = (orf.start - 1) * scale;
+    const w = orf.length * scale;
+    const key = orf.strand + orf.frame;
+    const y = trackOffset[orf.strand];
+
+    // Draw ORF block
+    ctx.fillStyle = colors[key] || '#999';
+    ctx.fillRect(x, y, w, barHeight);
+
+    // Label
+    ctx.fillStyle = '#000';
+    ctx.font = '11px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(`ORF ${idx + 1}`, x + 4, y + barHeight / 2 + 1);
+
+    // Store for tooltip
+    canvas.orfRects.push({
+      x, y, width: w, height: barHeight,
+      info: `ORF ${idx + 1} | ${orf.strand}${orf.frame} | ${orf.start}-${orf.end} | ${Math.floor(orf.length / 3)} aa`
+    });
+  });
+
+  // Tooltip logic
+  canvas.onmousemove = function(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left);
+    const y = (e.clientY - rect.top);
+    const hit = canvas.orfRects.find(r => x >= r.x && x <= r.x + r.width && y >= r.y && y <= r.y + r.height);
+    if (hit) {
+      tooltip.textContent = hit.info;
+      tooltip.style.left = `${e.pageX + 10}px`;
+      tooltip.style.top = `${e.pageY + 10}px`;
+      tooltip.style.display = 'block';
+    } else {
+      tooltip.style.display = 'none';
+    }
+  };
+}
+function wrapSequence(seq, lineLength = 60) {
+  const lines = [];
+  for (let i = 0; i < seq.length; i += lineLength) {
+    lines.push(seq.slice(i, i + lineLength));
+  }
+  return lines.join('\n');
+}
+
+function findORFs() {
+  const input = document.getElementById('orf-input').value;
+  const minLength = Math.max(3, parseInt(document.getElementById('min-length').value, 10)) || 150;
+  const cleanSeq = parseFasta(input);
+  const revSeq = reverseComplement(cleanSeq);
+  const orfs = [
+    ...findORFsInStrand(cleanSeq, '+', minLength),
+    ...findORFsInStrand(revSeq, '−', minLength)
+  ];
+  orfs.sort((a, b) => b.length - a.length);
+  window.orfs = orfs;
+
+  const tbody = document.querySelector('#orf-table tbody');
+  tbody.innerHTML = '';
+  orfs.forEach((orf, idx) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${idx + 1}</td>
+      <td>${orf.start}</td>
+      <td>${orf.end}</td>
+      <td>${orf.length}</td>
+      <td>${Math.floor(orf.length / 3)}</td>
+      <td>${orf.strand}${orf.frame}</td>
+      <td><button id="btn-${idx}" onclick="toggleORF(${idx})">Show</button></td>
+      <td id="orf-output-${idx}" style="text-align:left; max-width:350px;"></td>
+    `;
+    tbody.appendChild(row);
+  });
+  drawSequenceMap(cleanSeq.length, orfs);
+}
+</script>
+<script src="theme-toggle.js"></script>
+<hr>
+<p>This tool identifies open reading frames (ORFs) within user-provided RNA sequences. It accepts input sequences in both uppercase and lowercase nucleotide characters (A, U, G, C) and supports standard FASTA formatting. Users can specify a minimum ORF length (with a lower limit of 3 nucleotides) using the provided input field.</p>
+
+<p>The output can be generated in either translated protein sequence or nucleotide FASTA format. Results are presented in a sortable table that includes the positions of start and stop codons, as well as ORF lengths in both nucleotides (nt) and amino acids (aa). By clicking the "Show" button, users can view the full ORF sequence in a format optimized for easy copying.</p>
+  </div>
+  <div id="chatbox-button">💬</div>
+
+<div id="chatbox">
+  <div class="chatbox-header">
+    <span>Contact Me</span>
+    <button id="close-chat">✖</button>
+  </div>
+  <div class="chatbox-body">
+    <input type="text" id="chat-name" placeholder="Your Name" />
+    <input type="email" id="chat-email" placeholder="Your Email" />
+    <textarea id="chat-message" placeholder="Type your message..."></textarea>
+    <button id="send-message">Send</button>
+  </div>
+</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script src="chatbox.js"></script>
+</body>
+</html>
